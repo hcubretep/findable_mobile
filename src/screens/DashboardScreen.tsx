@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
+  RefreshControl,
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { colors } from '../theme/colors';
@@ -14,6 +15,9 @@ import { InsightCard, StatusCard } from '../components/InsightCard';
 import { SectionHeader } from '../components/SectionHeader';
 import { OrcaAvatar } from '../components/OrcaIcon';
 import { WaveBackground } from '../components/WaveBackground';
+import { Sparkline } from '../components/Sparkline';
+import { CompetitorCard } from '../components/CompetitorCard';
+import { trends, competitors } from '../data/mockData';
 
 const ChevronLeft = () => (
   <Svg width={20} height={20} viewBox="0 0 20 20">
@@ -56,6 +60,12 @@ const WarningIcon = () => (
 );
 
 export const DashboardScreen: React.FC = () => {
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1200);
+  }, []);
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
@@ -65,6 +75,14 @@ export const DashboardScreen: React.FC = () => {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
       >
         {/* Top Bar */}
         <View style={styles.topBar}>
@@ -91,6 +109,7 @@ export const DashboardScreen: React.FC = () => {
             colorEnd="#4DA6FF"
             label="Visibility"
             size={100}
+            animationDelay={100}
           />
           <CircularProgress
             value={82}
@@ -98,6 +117,7 @@ export const DashboardScreen: React.FC = () => {
             colorEnd="#34D399"
             label="Sentiment"
             size={100}
+            animationDelay={250}
           />
           <CircularProgress
             value={47}
@@ -107,7 +127,45 @@ export const DashboardScreen: React.FC = () => {
             label="Citations"
             unit=""
             size={100}
+            animationDelay={400}
           />
+        </View>
+
+        {/* Sparkline Trends */}
+        <View style={styles.sparklineRow}>
+          <View style={styles.sparklineCard}>
+            <Sparkline
+              data={trends.visibility}
+              color={colors.visibility}
+              width={100}
+              height={32}
+              label="7D VISIBILITY"
+              change="+8%"
+              changePositive
+            />
+          </View>
+          <View style={styles.sparklineCard}>
+            <Sparkline
+              data={trends.sentiment}
+              color={colors.sentiment}
+              width={100}
+              height={32}
+              label="7D SENTIMENT"
+              change="+3"
+              changePositive
+            />
+          </View>
+          <View style={styles.sparklineCard}>
+            <Sparkline
+              data={trends.citations}
+              color={colors.citations}
+              width={100}
+              height={32}
+              label="7D CITATIONS"
+              change="+15"
+              changePositive
+            />
+          </View>
         </View>
 
         {/* Insight Card */}
@@ -136,6 +194,9 @@ export const DashboardScreen: React.FC = () => {
             icon={<CheckCircle />}
           />
         </View>
+
+        {/* Competitor Ranking */}
+        <CompetitorCard competitors={competitors} />
 
         {/* My Day Section */}
         <SectionHeader
@@ -220,6 +281,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingHorizontal: 20,
     marginBottom: 8,
+  },
+  sparklineRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginBottom: 8,
+    gap: 8,
+  },
+  sparklineCard: {
+    flex: 1,
+    backgroundColor: colors.cardBackground,
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   statusRow: {
     flexDirection: 'row',

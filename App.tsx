@@ -6,6 +6,7 @@ import Svg, { Path, Circle, G, Ellipse } from 'react-native-svg';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { MyDayScreen } from './src/screens/MyDayScreen';
 import { MyPlanScreen } from './src/screens/MyPlanScreen';
+import { KeywordDetailScreen } from './src/screens/KeywordDetailScreen';
 import { colors } from './src/theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -23,30 +24,24 @@ const HomeIcon = ({ color, size }: { color: string; size: number }) => (
   </Svg>
 );
 
-const HealthIcon = ({ color, size }: { color: string; size: number }) => (
+const MentionsIcon = ({ color, size }: { color: string; size: number }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Path
-      d="M12 21C12 21 4 14.5 4 9C4 5.5 7 3 9.5 3C11 3 12 4 12 4C12 4 13 3 14.5 3C17 3 20 5.5 20 9C20 14.5 12 21 12 21Z"
-      stroke={color}
-      strokeWidth={1.8}
-      fill={color === colors.primary ? color + '20' : 'none'}
-    />
-  </Svg>
-);
-
-const CommunityIcon = ({ color, size }: { color: string; size: number }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx={9} cy={8} r={3.5} stroke={color} strokeWidth={1.8} fill="none" />
-    <Circle cx={16} cy={8} r={3.5} stroke={color} strokeWidth={1.8} fill="none" />
-    <Path
-      d="M3 20C3 16 5.5 14 9 14C10 14 10.8 14.2 11.5 14.5"
+      d="M21 12C21 7 17 3 12 3C7 3 3 7 3 12C3 17 7 21 12 21"
       stroke={color}
       strokeWidth={1.8}
       strokeLinecap="round"
       fill="none"
     />
     <Path
-      d="M12.5 14.5C13.2 14.2 14 14 15 14C18.5 14 21 16 21 20"
+      d="M12 8C10 8 8 10 8 12C8 14 10 16 12 16C14 16 16 14 16 12V8"
+      stroke={color}
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      fill="none"
+    />
+    <Path
+      d="M16 16C17 17.5 18.5 18 20 17.5"
       stroke={color}
       strokeWidth={1.8}
       strokeLinecap="round"
@@ -55,11 +50,37 @@ const CommunityIcon = ({ color, size }: { color: string; size: number }) => (
   </Svg>
 );
 
-const MoreIcon = ({ color, size }: { color: string; size: number }) => (
+const CitationsIcon = ({ color, size }: { color: string; size: number }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path d="M4 6H20" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
-    <Path d="M4 12H20" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
-    <Path d="M4 18H20" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+    <Path
+      d="M4 6H14L18 10V20H4V6Z"
+      stroke={color}
+      strokeWidth={1.8}
+      strokeLinejoin="round"
+      fill="none"
+    />
+    <Path d="M14 6V10H18" stroke={color} strokeWidth={1.8} strokeLinejoin="round" fill="none" />
+    <Path d="M7 13H15" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+    <Path d="M7 16H12" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+    <Circle cx={18} cy={6} r={4} fill={color} opacity={0.2} />
+    <Path d="M16.5 6L17.5 7L19.5 5" stroke={color} strokeWidth={1.2} strokeLinecap="round" fill="none" />
+  </Svg>
+);
+
+const PlanIcon = ({ color, size }: { color: string; size: number }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      d="M4 4H20V20H4V4Z"
+      stroke={color}
+      strokeWidth={1.8}
+      strokeLinejoin="round"
+      fill="none"
+    />
+    <Path d="M4 9H20" stroke={color} strokeWidth={1.8} />
+    <Path d="M9 4V9" stroke={color} strokeWidth={1.8} />
+    <Circle cx={8} cy={13} r={1} fill={color} />
+    <Circle cx={12} cy={13} r={1} fill={color} />
+    <Circle cx={8} cy={17} r={1} fill={color} />
   </Svg>
 );
 
@@ -117,24 +138,24 @@ export default function App() {
           }}
         />
         <Tab.Screen
-          name="Health"
+          name="Mentions"
           component={MyDayScreen}
           options={{
-            tabBarIcon: ({ color, size }) => <HealthIcon color={color} size={size} />,
+            tabBarIcon: ({ color, size }) => <MentionsIcon color={color} size={size} />,
           }}
         />
         <Tab.Screen
-          name="Community"
-          component={MyPlanScreen}
+          name="Citations"
+          component={KeywordDetailScreen}
           options={{
-            tabBarIcon: ({ color, size }) => <CommunityIcon color={color} size={size} />,
+            tabBarIcon: ({ color, size }) => <CitationsIcon color={color} size={size} />,
           }}
         />
         <Tab.Screen
-          name="More"
+          name="Plan"
           component={MyPlanScreen}
           options={{
-            tabBarIcon: ({ color, size }) => <MoreIcon color={color} size={size} />,
+            tabBarIcon: ({ color, size }) => <PlanIcon color={color} size={size} />,
           }}
         />
         <Tab.Screen

@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
+  RefreshControl,
 } from 'react-native';
 import Svg, { Path, Circle, Rect } from 'react-native-svg';
 import { colors } from '../theme/colors';
@@ -119,6 +120,12 @@ const DashboardMetric: React.FC<DashboardMetricProps> = ({
 );
 
 export const MyPlanScreen: React.FC = () => {
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1200);
+  }, []);
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -128,6 +135,14 @@ export const MyPlanScreen: React.FC = () => {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
       >
         {/* Top Bar */}
         <View style={styles.topBar}>
@@ -223,10 +238,10 @@ export const MyPlanScreen: React.FC = () => {
         </View>
 
         <DashboardMetric
-          label="HEART RATE VARIABILITY"
-          value="85"
-          change="↓ 91"
-          changeColor={colors.textMuted}
+          label="AI VISIBILITY SCORE"
+          value="73"
+          change="↑ 68"
+          changeColor={colors.teal}
         />
 
         {/* Repurposed for Findable metrics */}

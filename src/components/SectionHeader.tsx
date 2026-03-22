@@ -35,6 +35,7 @@ interface PlatformPillProps {
   value?: string;
   color?: string;
   active?: boolean;
+  sparkline?: React.ReactNode;
 }
 
 export const PlatformPill: React.FC<PlatformPillProps> = ({
@@ -44,6 +45,7 @@ export const PlatformPill: React.FC<PlatformPillProps> = ({
   value,
   color = colors.primary,
   active = false,
+  sparkline,
 }) => {
   return (
     <TouchableOpacity
@@ -60,6 +62,7 @@ export const PlatformPill: React.FC<PlatformPillProps> = ({
         <Text style={styles.pillLabel}>{label}</Text>
         {time && <Text style={styles.pillTime}>{time}</Text>}
       </View>
+      {sparkline && <View style={styles.pillSparkline}>{sparkline}</View>}
       {value && (
         <Text style={[styles.pillValue, { color }]}>{value}</Text>
       )}
@@ -119,6 +122,9 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 12,
     marginTop: 2,
+  },
+  pillSparkline: {
+    marginRight: 10,
   },
   pillValue: {
     fontSize: 16,

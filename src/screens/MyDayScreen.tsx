@@ -6,11 +6,14 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
+  RefreshControl,
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { colors } from '../theme/colors';
 import { SectionHeader, PlatformPill } from '../components/SectionHeader';
 import { SubtleWaves } from '../components/WaveBackground';
+import { MiniSparkline } from '../components/Sparkline';
+import { platformTrends } from '../data/mockData';
 
 const FilterPill: React.FC<{ label: string; active?: boolean; color?: string }> = ({
   label,
@@ -59,6 +62,12 @@ const JournalDot: React.FC<{ day: string; filled: boolean; today?: boolean }> = 
 );
 
 export const MyDayScreen: React.FC = () => {
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1200);
+  }, []);
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -68,6 +77,14 @@ export const MyDayScreen: React.FC = () => {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
       >
         {/* Filter bar */}
         <View style={styles.filterRow}>
@@ -110,6 +127,7 @@ export const MyDayScreen: React.FC = () => {
           value="+23%"
           color={colors.teal}
           active
+          sparkline={<MiniSparkline data={platformTrends.chatgpt} color={colors.teal} />}
         />
         <PlatformPill
           icon="🟣"
@@ -117,6 +135,7 @@ export const MyDayScreen: React.FC = () => {
           time="8 mentions today"
           value="+15%"
           color={colors.primary}
+          sparkline={<MiniSparkline data={platformTrends.claude} color={colors.primary} />}
         />
         <PlatformPill
           icon="💎"
@@ -124,6 +143,7 @@ export const MyDayScreen: React.FC = () => {
           time="5 mentions today"
           value="+8%"
           color={colors.amber}
+          sparkline={<MiniSparkline data={platformTrends.gemini} color={colors.amber} />}
         />
         <PlatformPill
           icon="🔍"
@@ -131,6 +151,7 @@ export const MyDayScreen: React.FC = () => {
           time="3 mentions today"
           value="-2%"
           color={colors.coral}
+          sparkline={<MiniSparkline data={platformTrends.perplexity} color={colors.coral} />}
         />
 
         {/* Add / Start buttons */}
