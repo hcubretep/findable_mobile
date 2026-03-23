@@ -8,115 +8,114 @@ import {
   StatusBar,
   RefreshControl,
 } from 'react-native';
-import Svg, { Path, Circle, Rect } from 'react-native-svg';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { colors } from '../theme/colors';
-import { OrcaAvatar } from '../components/OrcaIcon';
 import { SubtleWaves } from '../components/WaveBackground';
+import { Sparkline } from '../components/Sparkline';
 
-const ChevronLeft = () => (
-  <Svg width={20} height={20} viewBox="0 0 20 20">
-    <Path d="M12 4L6 10L12 16" stroke={colors.textSecondary} strokeWidth={2} strokeLinecap="round" fill="none" />
-  </Svg>
-);
+// Plan goals data
+const goals = [
+  {
+    title: 'Reach 80+ Visibility Score',
+    current: 73,
+    target: 80,
+    unit: '',
+    color: colors.visibility,
+    trend: [58, 61, 64, 67, 65, 70, 73],
+  },
+  {
+    title: 'Get cited in 60+ AI responses/week',
+    current: 47,
+    target: 60,
+    unit: '',
+    color: colors.citations,
+    trend: [32, 35, 38, 41, 39, 44, 47],
+  },
+  {
+    title: 'Maintain 80+ Sentiment Score',
+    current: 82,
+    target: 80,
+    unit: '',
+    color: colors.sentiment,
+    trend: [78, 76, 80, 79, 83, 81, 82],
+    completed: true,
+  },
+  {
+    title: 'Appear on 5+ AI platforms',
+    current: 4,
+    target: 5,
+    unit: ' platforms',
+    color: colors.primary,
+    trend: [2, 2, 3, 3, 3, 4, 4],
+  },
+];
 
-const ChevronRight = () => (
-  <Svg width={20} height={20} viewBox="0 0 20 20">
-    <Path d="M8 4L14 10L8 16" stroke={colors.textSecondary} strokeWidth={2} strokeLinecap="round" fill="none" />
-  </Svg>
-);
+const milestones = [
+  { date: 'Mar 18', event: 'Hit 70 Visibility Score', icon: '🎯', color: colors.visibility },
+  { date: 'Mar 20', event: 'First citation on Gemini', icon: '💎', color: colors.amber },
+  { date: 'Mar 21', event: '2 actions completed in one day', icon: '⚡', color: colors.teal },
+  { date: 'Mar 22', event: 'Sentiment score above 80 for 3 days', icon: '🌊', color: colors.sentiment },
+];
 
-const BatteryIcon = () => (
-  <Svg width={20} height={20} viewBox="0 0 20 20">
-    <Path
-      d="M3 6H15C15.5523 6 16 6.44772 16 7V13C16 13.5523 15.5523 14 15 14H3C2.44772 14 2 13.5523 2 13V7C2 6.44772 2.44772 6 3 6Z"
-      stroke={colors.primary}
-      strokeWidth={1.5}
-      fill="none"
-    />
-    <Path d="M17 9V11" stroke={colors.primary} strokeWidth={1.5} strokeLinecap="round" />
-    <Path d="M5 8H10C10.5 8 11 8.5 11 9V11C11 11.5 10.5 12 10 12H5C4.5 12 4 11.5 4 11V9C4 8.5 4.5 8 5 8Z" fill={colors.primary} />
-  </Svg>
-);
-
-interface GoalItemProps {
+const GoalCard: React.FC<{
   title: string;
-  progress: string;
-  total: string;
-  completed: boolean;
+  current: number;
+  target: number;
+  unit: string;
   color: string;
-}
-
-const GoalItem: React.FC<GoalItemProps> = ({ title, progress, total, completed, color }) => (
-  <View style={styles.goalItem}>
-    <Text style={[styles.goalTitle, completed && { color }]}>{title}</Text>
-    <View style={styles.goalProgress}>
-      <Text style={[styles.goalCount, { color: completed ? color : colors.textSecondary }]}>
-        {progress}
-      </Text>
-    </View>
-  </View>
-);
-
-const MiniRing: React.FC<{ progress: number; color: string; size?: number }> = ({
-  progress,
-  color,
-  size = 40,
-}) => {
-  const strokeWidth = 3;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference * (1 - progress);
+  trend: number[];
+  completed?: boolean;
+}> = ({ title, current, target, unit, color, trend, completed = false }) => {
+  const progress = Math.min(current / target, 1);
 
   return (
-    <Svg width={size} height={size}>
-      <Circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        stroke={colors.cardBackgroundLight}
-        strokeWidth={strokeWidth}
-        fill="none"
-      />
-      <Circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        stroke={color}
-        strokeWidth={strokeWidth}
-        fill="none"
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-        transform={`rotate(-90, ${size / 2}, ${size / 2})`}
-      />
-    </Svg>
+    <View style={[styles.goalCard, completed && { borderColor: color + '30' }]}>
+      <View style={styles.goalHeader}>
+        <View style={styles.goalInfo}>
+          <Text style={styles.goalTitle}>{title}</Text>
+          <View style={styles.goalValueRow}>
+            <Text style={[styles.goalCurrent, { color }]}>{current}{unit}</Text>
+            <Text style={styles.goalSeparator}>/</Text>
+            <Text style={styles.goalTarget}>{target}{unit}</Text>
+          </View>
+        </View>
+        <Sparkline data={trend} color={color} width={70} height={28} showDot showFill={false} />
+      </View>
+      <View style={styles.goalBar}>
+        <View style={[styles.goalBarFill, { width: `${progress * 100}%`, backgroundColor: color }]} />
+      </View>
+      {completed && (
+        <View style={[styles.completedBadge, { backgroundColor: color + '15' }]}>
+          <Svg width={12} height={12} viewBox="0 0 12 12">
+            <Path d="M3 6L5 8.5L9 3.5" stroke={color} strokeWidth={1.5} strokeLinecap="round" fill="none" />
+          </Svg>
+          <Text style={[styles.completedText, { color }]}>Goal reached!</Text>
+        </View>
+      )}
+    </View>
   );
 };
 
-interface DashboardMetricProps {
-  label: string;
-  value: string;
-  change?: string;
-  changeColor?: string;
-}
-
-const DashboardMetric: React.FC<DashboardMetricProps> = ({
-  label,
-  value,
-  change,
-  changeColor,
-}) => (
-  <TouchableOpacity style={styles.dashMetric} activeOpacity={0.7}>
-    <View style={styles.dashMetricRow}>
-      <Text style={styles.dashMetricLabel}>{label}</Text>
-      <View style={styles.dashMetricValue}>
-        <Text style={styles.dashMetricNumber}>{value}</Text>
-        {change && (
-          <Text style={[styles.dashMetricChange, { color: changeColor }]}>{change}</Text>
-        )}
+const MilestoneItem: React.FC<{
+  date: string;
+  event: string;
+  icon: string;
+  color: string;
+  isLast?: boolean;
+}> = ({ date, event, icon, color, isLast = false }) => (
+  <View style={styles.milestoneItem}>
+    <View style={styles.milestoneTimeline}>
+      <View style={[styles.milestoneDot, { backgroundColor: color }]} />
+      {!isLast && <View style={styles.milestoneLine} />}
+    </View>
+    <View style={styles.milestoneContent}>
+      <Text style={styles.milestoneDate}>{date}</Text>
+      <View style={styles.milestoneEvent}>
+        <Text style={styles.milestoneIcon}>{icon}</Text>
+        <Text style={styles.milestoneText}>{event}</Text>
       </View>
     </View>
-  </TouchableOpacity>
+  </View>
 );
 
 export const MyPlanScreen: React.FC = () => {
@@ -125,6 +124,12 @@ export const MyPlanScreen: React.FC = () => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1200);
   }, []);
+
+  const completedGoals = goals.filter((g) => g.completed).length;
+  const totalGoals = goals.length;
+  const overallProgress = Math.round(
+    goals.reduce((sum, g) => sum + Math.min(g.current / g.target, 1), 0) / totalGoals * 100
+  );
 
   return (
     <View style={styles.container}>
@@ -136,152 +141,92 @@ export const MyPlanScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />
         }
       >
-        {/* Top Bar */}
-        <View style={styles.topBar}>
-          <OrcaAvatar size={36} />
-          <View style={styles.dateNav}>
-            <TouchableOpacity><ChevronLeft /></TouchableOpacity>
-            <Text style={styles.dateLabel}>TODAY</Text>
-            <TouchableOpacity><ChevronRight /></TouchableOpacity>
-          </View>
-          <View style={styles.batteryRow}>
-            <Text style={styles.batteryText}>73%</Text>
-            <BatteryIcon />
-          </View>
-        </View>
+        {/* Header */}
+        <Text style={styles.screenTitle}>Your Plan</Text>
+        <Text style={styles.screenSubtitle}>Weekly visibility goals & progress</Text>
 
-        {/* Filter bar */}
-        <View style={styles.filterRow}>
-          <View style={[styles.filterDot, { backgroundColor: colors.visibility }]} />
-          <Text style={styles.filterLabel}>VISIBILITY</Text>
-          <View style={[styles.filterDot, { backgroundColor: colors.sentiment }]} />
-          <Text style={styles.filterLabel}>SENTIMENT</Text>
-          <View style={[styles.filterDot, { backgroundColor: colors.citations }]} />
-          <Text style={styles.filterLabel}>CITATIONS</Text>
-        </View>
-
-        {/* My Plan Section */}
-        <Text style={styles.sectionTitle}>My Plan</Text>
-
-        {/* Plan Card */}
-        <View style={styles.planCard}>
-          <View style={styles.planHeader}>
+        {/* Overall progress */}
+        <View style={styles.overviewCard}>
+          <View style={styles.overviewTop}>
             <View>
-              <Text style={styles.planName}>CUSTOM PLAN</Text>
-              <Text style={styles.planDays}>3 days left</Text>
+              <Text style={styles.overviewLabel}>WEEKLY PROGRESS</Text>
+              <View style={styles.overviewValueRow}>
+                <Text style={styles.overviewValue}>{overallProgress}%</Text>
+                <Text style={styles.overviewMeta}>{completedGoals}/{totalGoals} goals hit</Text>
+              </View>
             </View>
-            <Svg width={20} height={20} viewBox="0 0 20 20">
-              <Path d="M10 4V10L14 14" stroke={colors.textMuted} strokeWidth={1.5} strokeLinecap="round" fill="none" />
-            </Svg>
+            <View style={styles.streakBadge}>
+              <Text style={styles.streakEmoji}>🔥</Text>
+              <Text style={styles.streakText}>5 day streak</Text>
+            </View>
           </View>
-
-          {/* Progress bar */}
-          <Text style={styles.progressLabel}>
-            <Text style={{ fontWeight: '800', fontSize: 22 }}>57</Text>% ACCOMPLISHED
+          <View style={styles.overviewBar}>
+            <View style={[styles.overviewBarFill, { width: `${overallProgress}%` }]} />
+          </View>
+          <Text style={styles.overviewHint}>
+            3 days left to hit your weekly targets
           </Text>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: '57%' }]} />
-          </View>
+        </View>
 
-          {/* Goals */}
-          <View style={styles.goalsList}>
-            <GoalItem
-              title="4,500+ Monthly Impressions"
-              progress="2/7"
-              total="7"
-              completed={false}
-              color={colors.textSecondary}
-            />
-            <GoalItem
-              title="80+ Sentiment Score"
-              progress="0/7"
-              total="7"
-              completed={false}
-              color={colors.textSecondary}
-            />
-            <GoalItem
-              title="1:10+ Cited in AI Responses"
-              progress="2:02"
-              total=""
-              completed={true}
-              color={colors.teal}
-            />
-            <GoalItem
-              title="Any Content Published"
-              progress="2/2"
-              total="2"
-              completed={true}
-              color={colors.teal}
-            />
-          </View>
-
-          <TouchableOpacity style={styles.viewPlanButton}>
-            <Text style={styles.viewPlanText}>VIEW MY PLAN</Text>
+        {/* Goals */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>GOALS</Text>
+          <TouchableOpacity>
+            <Text style={styles.editButton}>Edit</Text>
           </TouchableOpacity>
         </View>
 
-        {/* My Dashboard */}
-        <View style={styles.dashboardHeader}>
-          <Text style={styles.sectionTitle}>My Dashboard</Text>
-          <TouchableOpacity style={styles.customizeBadge}>
-            <Text style={styles.customizeText}>CUSTOMIZE</Text>
-            <Text style={styles.customizeIcon}>✏️</Text>
-          </TouchableOpacity>
+        {goals.map((goal) => (
+          <GoalCard key={goal.title} {...goal} />
+        ))}
+
+        {/* What to do next */}
+        <View style={[styles.sectionHeader, { marginTop: 24 }]}>
+          <Text style={styles.sectionTitle}>RECOMMENDED NEXT STEPS</Text>
         </View>
 
-        <DashboardMetric
-          label="AI VISIBILITY SCORE"
-          value="73"
-          change="↑ 68"
-          changeColor={colors.teal}
-        />
+        <View style={styles.nextStepCard}>
+          <View style={styles.nextStepIcon}>
+            <Text style={styles.nextStepEmoji}>🎯</Text>
+          </View>
+          <View style={styles.nextStepContent}>
+            <Text style={styles.nextStepTitle}>To reach 80 Visibility</Text>
+            <Text style={styles.nextStepDesc}>
+              You need +7 points. Publishing 2 more optimized pages and earning 1 third-party mention should get you there.
+            </Text>
+            <TouchableOpacity style={styles.nextStepAction}>
+              <Text style={styles.nextStepActionText}>See content suggestions →</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-        {/* Repurposed for Findable metrics */}
-        <View style={styles.metricsGrid}>
-          <View style={styles.metricGridItem}>
-            <View style={styles.metricGridRow}>
-              <MiniRing progress={0.73} color={colors.visibility} />
-              <View style={styles.metricGridContent}>
-                <Text style={styles.metricGridLabel}>AI VISIBILITY</Text>
-                <Text style={styles.metricGridValue}>73%</Text>
-              </View>
-            </View>
+        <View style={styles.nextStepCard}>
+          <View style={styles.nextStepIcon}>
+            <Text style={styles.nextStepEmoji}>💎</Text>
           </View>
-          <View style={styles.metricGridItem}>
-            <View style={styles.metricGridRow}>
-              <MiniRing progress={0.82} color={colors.sentiment} />
-              <View style={styles.metricGridContent}>
-                <Text style={styles.metricGridLabel}>BRAND SENTIMENT</Text>
-                <Text style={styles.metricGridValue}>82</Text>
-              </View>
-            </View>
+          <View style={styles.nextStepContent}>
+            <Text style={styles.nextStepTitle}>To appear on Grok (5th platform)</Text>
+            <Text style={styles.nextStepDesc}>
+              Grok relies heavily on X/Twitter signals. Post 3 authoritative threads about AI SEO this week.
+            </Text>
+            <TouchableOpacity style={styles.nextStepAction}>
+              <Text style={styles.nextStepActionText}>Draft X threads →</Text>
+            </TouchableOpacity>
           </View>
-          <View style={styles.metricGridItem}>
-            <View style={styles.metricGridRow}>
-              <MiniRing progress={0.47} color={colors.citations} />
-              <View style={styles.metricGridContent}>
-                <Text style={styles.metricGridLabel}>CITATIONS</Text>
-                <Text style={styles.metricGridValue}>47</Text>
-              </View>
-            </View>
-          </View>
-          <View style={styles.metricGridItem}>
-            <View style={styles.metricGridRow}>
-              <MiniRing progress={1.0} color={colors.success} />
-              <View style={styles.metricGridContent}>
-                <Text style={styles.metricGridLabel}>CRAWLER HEALTH</Text>
-                <Text style={styles.metricGridValue}>100%</Text>
-              </View>
-            </View>
-          </View>
+        </View>
+
+        {/* Milestones */}
+        <View style={[styles.sectionHeader, { marginTop: 24 }]}>
+          <Text style={styles.sectionTitle}>THIS WEEK'S MILESTONES</Text>
+        </View>
+
+        <View style={styles.milestonesCard}>
+          {milestones.map((m, i) => (
+            <MilestoneItem key={m.event} {...m} isLast={i === milestones.length - 1} />
+          ))}
         </View>
 
         <View style={{ height: 100 }} />
@@ -301,243 +246,277 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 60,
   },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 16,
-  },
-  dateNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: colors.cardBackground,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  dateLabel: {
+  screenTitle: {
     color: colors.textPrimary,
+    fontSize: 28,
+    fontWeight: '800',
+    paddingHorizontal: 20,
+    marginBottom: 4,
+  },
+  screenSubtitle: {
+    color: colors.textMuted,
     fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-  },
-  batteryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  batteryText: {
-    color: colors.textSecondary,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  filterRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
+    paddingHorizontal: 20,
     marginBottom: 20,
   },
-  filterDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  filterLabel: {
-    color: colors.textSecondary,
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.8,
-    marginRight: 8,
-  },
-  sectionTitle: {
-    color: colors.textPrimary,
-    fontSize: 22,
-    fontWeight: '700',
-    paddingHorizontal: 20,
-    marginBottom: 12,
-  },
-  planCard: {
+
+  // Overview card
+  overviewCard: {
     backgroundColor: colors.cardBackground,
     borderRadius: 18,
     padding: 20,
     marginHorizontal: 20,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  planHeader: {
+  overviewTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 14,
   },
-  planName: {
-    color: colors.textPrimary,
-    fontSize: 13,
+  overviewLabel: {
+    color: colors.textMuted,
+    fontSize: 10,
     fontWeight: '700',
     letterSpacing: 1,
+    marginBottom: 6,
   },
-  planDays: {
-    color: colors.textMuted,
-    fontSize: 12,
-    marginTop: 2,
+  overviewValueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 10,
   },
-  progressLabel: {
+  overviewValue: {
     color: colors.textPrimary,
+    fontSize: 36,
+    fontWeight: '800',
+  },
+  overviewMeta: {
+    color: colors.textMuted,
+    fontSize: 13,
+  },
+  streakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.amber + '15',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  streakEmoji: {
     fontSize: 14,
+  },
+  streakText: {
+    color: colors.amber,
+    fontSize: 11,
     fontWeight: '700',
-    letterSpacing: 0.5,
+  },
+  overviewBar: {
+    height: 8,
+    backgroundColor: colors.surfaceHover,
+    borderRadius: 4,
+    overflow: 'hidden',
     marginBottom: 10,
   },
-  progressBar: {
-    height: 6,
-    backgroundColor: colors.surfaceHover,
-    borderRadius: 3,
-    marginBottom: 20,
-    overflow: 'hidden',
-  },
-  progressFill: {
+  overviewBarFill: {
     height: '100%',
     backgroundColor: colors.teal,
-    borderRadius: 3,
+    borderRadius: 4,
   },
-  goalsList: {
-    gap: 14,
-    marginBottom: 16,
+  overviewHint: {
+    color: colors.textMuted,
+    fontSize: 12,
   },
-  goalItem: {
+
+  // Sections
+  sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 10,
   },
-  goalTitle: {
+  sectionTitle: {
     color: colors.textPrimary,
-    fontSize: 14,
-    fontWeight: '500',
-    flex: 1,
-  },
-  goalProgress: {
-    backgroundColor: colors.surfaceHover,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    marginLeft: 8,
-  },
-  goalCount: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  viewPlanButton: {
-    backgroundColor: colors.surfaceHover,
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  viewPlanText: {
-    color: colors.textSecondary,
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 1,
   },
-  dashboardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingRight: 20,
-    marginTop: 28,
-    marginBottom: 4,
+  editButton: {
+    color: colors.primary,
+    fontSize: 13,
+    fontWeight: '600',
   },
-  customizeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.coral + '20',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 6,
-  },
-  customizeText: {
-    color: colors.coral,
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  customizeIcon: {
-    fontSize: 10,
-  },
-  dashMetric: {
+
+  // Goal cards
+  goalCard: {
     backgroundColor: colors.cardBackground,
-    borderRadius: 16,
-    padding: 18,
+    borderRadius: 14,
+    padding: 16,
     marginHorizontal: 20,
     marginBottom: 8,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  dashMetricRow: {
+  goalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 10,
   },
-  dashMetricLabel: {
-    color: colors.textSecondary,
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.8,
+  goalInfo: {
     flex: 1,
+    marginRight: 12,
   },
-  dashMetricValue: {
+  goalTitle: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  goalValueRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    gap: 6,
+    gap: 3,
   },
-  dashMetricNumber: {
-    color: colors.textPrimary,
-    fontSize: 28,
-    fontWeight: '700',
+  goalCurrent: {
+    fontSize: 20,
+    fontWeight: '800',
   },
-  dashMetricChange: {
-    fontSize: 13,
+  goalSeparator: {
+    color: colors.textMuted,
+    fontSize: 14,
+  },
+  goalTarget: {
+    color: colors.textMuted,
+    fontSize: 14,
     fontWeight: '500',
   },
-  metricsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 20,
-    gap: 8,
-    marginTop: 4,
+  goalBar: {
+    height: 4,
+    backgroundColor: colors.surfaceHover,
+    borderRadius: 2,
+    overflow: 'hidden',
   },
-  metricGridItem: {
+  goalBarFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  completedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  completedText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+
+  // Next steps
+  nextStepCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.cardBackground,
+    borderRadius: 14,
+    padding: 16,
+    marginHorizontal: 20,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: 14,
+  },
+  nextStepIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.surfaceHover,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nextStepEmoji: {
+    fontSize: 20,
+  },
+  nextStepContent: {
+    flex: 1,
+  },
+  nextStepTitle: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  nextStepDesc: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    lineHeight: 17,
+    marginBottom: 8,
+  },
+  nextStepAction: {},
+  nextStepActionText: {
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  // Milestones
+  milestonesCard: {
     backgroundColor: colors.cardBackground,
     borderRadius: 16,
-    padding: 14,
-    width: '48.5%',
+    padding: 18,
+    marginHorizontal: 20,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  metricGridRow: {
+  milestoneItem: {
+    flexDirection: 'row',
+  },
+  milestoneTimeline: {
+    alignItems: 'center',
+    width: 20,
+    marginRight: 12,
+  },
+  milestoneDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginTop: 4,
+  },
+  milestoneLine: {
+    width: 2,
+    flex: 1,
+    backgroundColor: colors.surfaceHover,
+    marginVertical: 4,
+  },
+  milestoneContent: {
+    flex: 1,
+    paddingBottom: 16,
+  },
+  milestoneDate: {
+    color: colors.textMuted,
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  milestoneEvent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
-  metricGridContent: {
-    flex: 1,
+  milestoneIcon: {
+    fontSize: 16,
   },
-  metricGridLabel: {
-    color: colors.textSecondary,
-    fontSize: 9,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  metricGridValue: {
+  milestoneText: {
     color: colors.textPrimary,
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
   },
 });

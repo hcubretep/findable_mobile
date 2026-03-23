@@ -1,86 +1,48 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Svg, { Path, Circle, G, Ellipse } from 'react-native-svg';
-import { DashboardScreen } from './src/screens/DashboardScreen';
+import { MorningScoreScreen } from './src/screens/MorningScoreScreen';
 import { MyDayScreen } from './src/screens/MyDayScreen';
-import { MyPlanScreen } from './src/screens/MyPlanScreen';
 import { KeywordDetailScreen } from './src/screens/KeywordDetailScreen';
+import { MyPlanScreen } from './src/screens/MyPlanScreen';
 import { colors } from './src/theme/colors';
 
 const Tab = createBottomTabNavigator();
 
-// Tab icons
-const HomeIcon = ({ color, size }: { color: string; size: number }) => (
+// --- Tab Icons ---
+const ScoreIcon = ({ color, size }: { color: string; size: number }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M3 12L12 3L21 12V21H15V15H9V21H3V12Z"
-      stroke={color}
-      strokeWidth={1.8}
-      strokeLinejoin="round"
-      fill={color === colors.primary ? color + '20' : 'none'}
-    />
+    <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={1.8} fill="none" />
+    <Path d="M12 7V12L15.5 14" stroke={color} strokeWidth={1.8} strokeLinecap="round" fill="none" />
   </Svg>
 );
 
 const MentionsIcon = ({ color, size }: { color: string; size: number }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M21 12C21 7 17 3 12 3C7 3 3 7 3 12C3 17 7 21 12 21"
-      stroke={color}
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      fill="none"
-    />
-    <Path
-      d="M12 8C10 8 8 10 8 12C8 14 10 16 12 16C14 16 16 14 16 12V8"
-      stroke={color}
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      fill="none"
-    />
-    <Path
-      d="M16 16C17 17.5 18.5 18 20 17.5"
-      stroke={color}
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      fill="none"
-    />
+    <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={1.8} fill="none" />
+    <Circle cx={12} cy={12} r={4} stroke={color} strokeWidth={1.8} fill="none" />
+    <Path d="M16 12V14C16 16 18 17 20 16" stroke={color} strokeWidth={1.8} strokeLinecap="round" fill="none" />
   </Svg>
 );
 
 const CitationsIcon = ({ color, size }: { color: string; size: number }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M4 6H14L18 10V20H4V6Z"
-      stroke={color}
-      strokeWidth={1.8}
-      strokeLinejoin="round"
-      fill="none"
-    />
-    <Path d="M14 6V10H18" stroke={color} strokeWidth={1.8} strokeLinejoin="round" fill="none" />
-    <Path d="M7 13H15" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
-    <Path d="M7 16H12" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
-    <Circle cx={18} cy={6} r={4} fill={color} opacity={0.2} />
-    <Path d="M16.5 6L17.5 7L19.5 5" stroke={color} strokeWidth={1.2} strokeLinecap="round" fill="none" />
+    <Path d="M5 4H15L19 8V20H5V4Z" stroke={color} strokeWidth={1.8} strokeLinejoin="round" fill="none" />
+    <Path d="M15 4V8H19" stroke={color} strokeWidth={1.8} strokeLinejoin="round" fill="none" />
+    <Path d="M8 13H16" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+    <Path d="M8 16H13" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
   </Svg>
 );
 
 const PlanIcon = ({ color, size }: { color: string; size: number }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M4 4H20V20H4V4Z"
-      stroke={color}
-      strokeWidth={1.8}
-      strokeLinejoin="round"
-      fill="none"
-    />
-    <Path d="M4 9H20" stroke={color} strokeWidth={1.8} />
-    <Path d="M9 4V9" stroke={color} strokeWidth={1.8} />
-    <Circle cx={8} cy={13} r={1} fill={color} />
-    <Circle cx={12} cy={13} r={1} fill={color} />
-    <Circle cx={8} cy={17} r={1} fill={color} />
+    <Path d="M8 4L8 8" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+    <Path d="M16 4L16 8" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+    <Path d="M4 10H20V20H4V10Z" stroke={color} strokeWidth={1.8} strokeLinejoin="round" fill="none" />
+    <Path d="M4 10V7C4 6 5 5 6 5H18C19 5 20 6 20 7V10" stroke={color} strokeWidth={1.8} fill="none" />
+    <Path d="M9 14L11 16L15 12" stroke={color} strokeWidth={1.8} strokeLinecap="round" fill="none" />
   </Svg>
 );
 
@@ -131,10 +93,10 @@ export default function App() {
         }}
       >
         <Tab.Screen
-          name="Home"
-          component={DashboardScreen}
+          name="Score"
+          component={MorningScoreScreen}
           options={{
-            tabBarIcon: ({ color, size }) => <HomeIcon color={color} size={size} />,
+            tabBarIcon: ({ color, size }) => <ScoreIcon color={color} size={size} />,
           }}
         />
         <Tab.Screen
@@ -142,6 +104,14 @@ export default function App() {
           component={MyDayScreen}
           options={{
             tabBarIcon: ({ color, size }) => <MentionsIcon color={color} size={size} />,
+          }}
+        />
+        <Tab.Screen
+          name="Orca"
+          component={MorningScoreScreen}
+          options={{
+            tabBarLabel: () => null,
+            tabBarIcon: ({ focused }) => <OrcaTabIcon focused={focused} />,
           }}
         />
         <Tab.Screen
@@ -158,14 +128,6 @@ export default function App() {
             tabBarIcon: ({ color, size }) => <PlanIcon color={color} size={size} />,
           }}
         />
-        <Tab.Screen
-          name="Orca"
-          component={DashboardScreen}
-          options={{
-            tabBarLabel: () => null,
-            tabBarIcon: ({ focused }) => <OrcaTabIcon focused={focused} />,
-          }}
-        />
       </Tab.Navigator>
     </NavigationContainer>
   );
@@ -173,15 +135,15 @@ export default function App() {
 
 const styles = StyleSheet.create({
   orcaTab: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: colors.cardBackground,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: colors.border,
-    marginTop: -8,
+    marginTop: -12,
   },
   orcaTabActive: {
     borderColor: colors.primary + '60',

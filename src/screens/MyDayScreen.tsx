@@ -10,55 +10,49 @@ import {
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { colors } from '../theme/colors';
-import { SectionHeader, PlatformPill } from '../components/SectionHeader';
+import { PlatformPill } from '../components/SectionHeader';
 import { SubtleWaves } from '../components/WaveBackground';
-import { MiniSparkline } from '../components/Sparkline';
+import { MiniSparkline, Sparkline } from '../components/Sparkline';
 import { platformTrends } from '../data/mockData';
 
-const FilterPill: React.FC<{ label: string; active?: boolean; color?: string }> = ({
-  label,
-  active,
-  color = colors.textSecondary,
-}) => (
-  <TouchableOpacity
-    style={[styles.filterPill, active && { borderColor: color + '50' }]}
-    activeOpacity={0.7}
-  >
-    <View style={[styles.filterDot, { backgroundColor: active ? color : colors.textMuted }]} />
-    <Text style={[styles.filterText, active && { color }]}>{label}</Text>
-  </TouchableOpacity>
-);
+// Mentions over time chart data
+const totalMentions7d = [15, 22, 18, 28, 25, 33, 28];
 
-const ExpandIcon = () => (
-  <Svg width={18} height={18} viewBox="0 0 18 18">
-    <Path d="M4 7L9 12L14 7" stroke={colors.textMuted} strokeWidth={1.5} strokeLinecap="round" fill="none" />
-  </Svg>
-);
+// Top mentioned content
+const topContent = [
+  { title: '/blog/ai-seo-guide', mentions: 14, platform: 'ChatGPT', change: '+6', positive: true },
+  { title: '/pricing', mentions: 9, platform: 'Claude', change: '+3', positive: true },
+  { title: '/vs/semrush', mentions: 7, platform: 'Perplexity', change: '-1', positive: false },
+  { title: '/features', mentions: 5, platform: 'Gemini', change: '+2', positive: true },
+];
 
-const JournalDot: React.FC<{ day: string; filled: boolean; today?: boolean }> = ({
-  day,
-  filled,
-  today,
-}) => (
-  <View style={styles.journalDay}>
-    <Text style={[styles.journalDayLabel, today && { color: colors.textPrimary, fontWeight: '700' }]}>
-      {day}
-    </Text>
-    <View
-      style={[
-        styles.journalDot,
-        filled
-          ? { backgroundColor: colors.teal }
-          : { borderWidth: 1.5, borderColor: colors.textMuted },
-      ]}
-    >
-      {filled && (
-        <Svg width={10} height={10} viewBox="0 0 10 10">
-          <Path d="M2.5 5L4.5 7L7.5 3" stroke="#FFF" strokeWidth={1.5} strokeLinecap="round" fill="none" />
-        </Svg>
-      )}
+const platformColors: Record<string, string> = {
+  ChatGPT: colors.teal,
+  Claude: colors.primary,
+  Gemini: colors.amber,
+  Perplexity: colors.coral,
+};
+
+const ContentRow: React.FC<{
+  title: string;
+  mentions: number;
+  platform: string;
+  change: string;
+  positive: boolean;
+}> = ({ title, mentions, platform, change, positive }) => (
+  <TouchableOpacity style={styles.contentRow} activeOpacity={0.7}>
+    <View style={styles.contentInfo}>
+      <Text style={styles.contentTitle} numberOfLines={1}>{title}</Text>
+      <View style={styles.contentMeta}>
+        <View style={[styles.platformDot, { backgroundColor: platformColors[platform] || colors.textMuted }]} />
+        <Text style={styles.contentPlatform}>Most cited on {platform}</Text>
+      </View>
     </View>
-  </View>
+    <View style={styles.contentStats}>
+      <Text style={styles.contentMentions}>{mentions}</Text>
+      <Text style={[styles.contentChange, { color: positive ? colors.teal : colors.coral }]}>{change}</Text>
+    </View>
+  </TouchableOpacity>
 );
 
 export const MyDayScreen: React.FC = () => {
@@ -67,6 +61,10 @@ export const MyDayScreen: React.FC = () => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1200);
   }, []);
+
+  const totalToday = 28;
+  const totalYesterday = 25;
+  const changePercent = Math.round(((totalToday - totalYesterday) / totalYesterday) * 100);
 
   return (
     <View style={styles.container}>
@@ -78,46 +76,32 @@ export const MyDayScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />
         }
       >
-        {/* Filter bar */}
-        <View style={styles.filterRow}>
-          <FilterPill label="VISIBILITY" color={colors.visibility} />
-          <FilterPill label="SENTIMENT" color={colors.sentiment} />
-          <FilterPill label="CITATIONS" color={colors.citations} />
+        {/* Header */}
+        <Text style={styles.screenTitle}>Mentions</Text>
+        <Text style={styles.screenSubtitle}>How AI platforms talk about your brand</Text>
+
+        {/* Today's total */}
+        <View style={styles.todayCard}>
+          <View style={styles.todayLeft}>
+            <Text style={styles.todayLabel}>TODAY'S MENTIONS</Text>
+            <View style={styles.todayValueRow}>
+              <Text style={styles.todayValue}>{totalToday}</Text>
+              <Text style={[styles.todayChange, { color: changePercent >= 0 ? colors.teal : colors.coral }]}>
+                {changePercent >= 0 ? '+' : ''}{changePercent}% vs yesterday
+              </Text>
+            </View>
+          </View>
+          <View style={styles.todayChart}>
+            <Sparkline data={totalMentions7d} color={colors.primary} width={120} height={44} label="7 DAY TREND" />
+          </View>
         </View>
 
-        {/* My Day header */}
-        <SectionHeader
-          title="My Day"
-          rightElement={
-            <TouchableOpacity style={styles.addButton}>
-              <Text style={styles.addButtonText}>+</Text>
-            </TouchableOpacity>
-          }
-        />
-
-        {/* Daily Outlook */}
-        <TouchableOpacity style={styles.outlookCard}>
-          <Text style={styles.outlookIcon}>🔱</Text>
-          <Text style={styles.outlookText}>Your Daily Outlook</Text>
-          <Svg width={16} height={16} viewBox="0 0 16 16">
-            <Path d="M6 4L10 8L6 12" stroke={colors.textMuted} strokeWidth={1.5} strokeLinecap="round" fill="none" />
-          </Svg>
-        </TouchableOpacity>
-
-        {/* Today's AI Mentions */}
+        {/* Platform breakdown */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>TODAY'S AI MENTIONS</Text>
-          <TouchableOpacity>
-            <ExpandIcon />
-          </TouchableOpacity>
+          <Text style={styles.sectionTitle}>BY PLATFORM</Text>
         </View>
 
         <PlatformPill
@@ -154,62 +138,47 @@ export const MyDayScreen: React.FC = () => {
           sparkline={<MiniSparkline data={platformTrends.perplexity} color={colors.coral} />}
         />
 
-        {/* Add / Start buttons */}
-        <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionIcon}>+</Text>
-            <Text style={styles.actionText}>ADD QUERY</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButton, styles.actionButtonOutline]}>
-            <Text style={styles.actionIcon}>◉</Text>
-            <Text style={styles.actionText}>START MONITOR</Text>
-          </TouchableOpacity>
+        {/* Top cited content */}
+        <View style={[styles.sectionHeader, { marginTop: 24 }]}>
+          <Text style={styles.sectionTitle}>TOP CITED CONTENT</Text>
+          <Text style={styles.sectionAction}>This week</Text>
         </View>
 
-        {/* Tonight's Sleep = Tomorrow's Crawl */}
-        <View style={styles.sleepSection}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>NEXT CRAWL WINDOW</Text>
-            <Svg width={16} height={16} viewBox="0 0 16 16">
-              <Path d="M6 4L10 8L6 12" stroke={colors.textMuted} strokeWidth={1.5} strokeLinecap="round" fill="none" />
-            </Svg>
-          </View>
-          <View style={styles.sleepTimes}>
-            <View style={styles.sleepItem}>
-              <Text style={styles.sleepEmoji}>🌊</Text>
-              <Text style={styles.sleepTime}>2:00 AM</Text>
-              <Text style={styles.sleepLabel}>SCHEDULED CRAWL</Text>
-            </View>
-            <View style={styles.sleepDivider} />
-            <View style={styles.sleepItem}>
-              <Text style={styles.sleepEmoji}>⏰</Text>
-              <Text style={[styles.sleepTime, { color: colors.teal }]}>AUTO</Text>
-              <Text style={styles.sleepLabel}>ALERT MODE</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.alarmButton}>
-            <Text style={styles.alarmIcon}>⏰</Text>
-            <Text style={styles.alarmText}>SET ALERT</Text>
-          </TouchableOpacity>
+        {topContent.map((item) => (
+          <ContentRow key={item.title} {...item} />
+        ))}
+
+        {/* Sentiment snapshot */}
+        <View style={[styles.sectionHeader, { marginTop: 24 }]}>
+          <Text style={styles.sectionTitle}>SENTIMENT SNAPSHOT</Text>
         </View>
 
-        {/* My Journal = Tracking Log */}
-        <View style={styles.journalSection}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>MY JOURNAL</Text>
-            <Svg width={16} height={16} viewBox="0 0 16 16">
-              <Path d="M6 4L10 8L6 12" stroke={colors.textMuted} strokeWidth={1.5} strokeLinecap="round" fill="none" />
-            </Svg>
+        <View style={styles.sentimentCard}>
+          <View style={styles.sentimentRow}>
+            <View style={styles.sentimentItem}>
+              <Text style={styles.sentimentEmoji}>😊</Text>
+              <Text style={styles.sentimentValue}>76%</Text>
+              <Text style={styles.sentimentLabel}>Positive</Text>
+            </View>
+            <View style={styles.sentimentItem}>
+              <Text style={styles.sentimentEmoji}>😐</Text>
+              <Text style={styles.sentimentValue}>20%</Text>
+              <Text style={styles.sentimentLabel}>Neutral</Text>
+            </View>
+            <View style={styles.sentimentItem}>
+              <Text style={styles.sentimentEmoji}>😟</Text>
+              <Text style={styles.sentimentValue}>4%</Text>
+              <Text style={styles.sentimentLabel}>Negative</Text>
+            </View>
           </View>
-          <View style={styles.journalRow}>
-            <JournalDot day="SAT" filled />
-            <JournalDot day="SUN" filled />
-            <JournalDot day="MON" filled={false} />
-            <JournalDot day="TUE" filled />
-            <JournalDot day="WED" filled />
-            <JournalDot day="THU" filled />
-            <JournalDot day="FRI" filled={false} today />
+          <View style={styles.sentimentBar}>
+            <View style={[styles.sentimentFill, { width: '76%', backgroundColor: colors.teal }]} />
+            <View style={[styles.sentimentFill, { width: '20%', backgroundColor: colors.textMuted }]} />
+            <View style={[styles.sentimentFill, { width: '4%', backgroundColor: colors.coral }]} />
           </View>
+          <Text style={styles.sentimentNote}>
+            AI models describe findable as "innovative" and "comprehensive" most frequently
+          </Text>
         </View>
 
         <View style={{ height: 100 }} />
@@ -229,83 +198,64 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 60,
   },
-  filterRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
-    paddingHorizontal: 20,
-    marginBottom: 8,
-  },
-  filterPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  filterDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  filterText: {
-    color: colors.textSecondary,
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.8,
-  },
-  addButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: colors.cardBackground,
-    borderWidth: 1,
-    borderColor: colors.border,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  addButtonText: {
+  screenTitle: {
     color: colors.textPrimary,
-    fontSize: 18,
-    fontWeight: '300',
+    fontSize: 28,
+    fontWeight: '800',
+    paddingHorizontal: 20,
+    marginBottom: 4,
   },
-  outlookCard: {
+  screenSubtitle: {
+    color: colors.textMuted,
+    fontSize: 13,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+
+  // Today card
+  todayCard: {
     flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: colors.cardBackground,
-    borderRadius: 14,
-    padding: 16,
+    borderRadius: 16,
+    padding: 18,
     marginHorizontal: 20,
-    marginBottom: 8,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: colors.border,
-    gap: 10,
   },
-  outlookIcon: {
-    fontSize: 16,
-  },
-  outlookText: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    fontWeight: '500',
+  todayLeft: {
     flex: 1,
   },
+  todayLabel: {
+    color: colors.textMuted,
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1,
+    marginBottom: 6,
+  },
+  todayValueRow: {
+    gap: 4,
+  },
+  todayValue: {
+    color: colors.textPrimary,
+    fontSize: 36,
+    fontWeight: '800',
+  },
+  todayChange: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  todayChart: {
+    justifyContent: 'center',
+  },
+
+  // Sections
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-  },
-  sectionHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   sectionTitle: {
     color: colors.textPrimary,
@@ -313,122 +263,110 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1,
   },
-  actionRow: {
-    flexDirection: 'row',
-    gap: 10,
-    paddingHorizontal: 20,
-    marginTop: 12,
+  sectionAction: {
+    color: colors.textMuted,
+    fontSize: 11,
+    fontWeight: '500',
   },
-  actionButton: {
-    flex: 1,
+
+  // Content rows
+  contentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
     backgroundColor: colors.cardBackground,
-    borderRadius: 24,
-    paddingVertical: 14,
+    borderRadius: 12,
+    padding: 14,
+    marginHorizontal: 20,
+    marginBottom: 6,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  actionButtonOutline: {
-    borderColor: colors.primary + '40',
+  contentInfo: {
+    flex: 1,
   },
-  actionIcon: {
-    color: colors.textSecondary,
-    fontSize: 14,
+  contentTitle: {
+    color: colors.textPrimary,
+    fontSize: 13,
+    fontWeight: '600',
+    fontFamily: 'monospace',
+    marginBottom: 4,
   },
-  actionText: {
-    color: colors.textSecondary,
+  contentMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  platformDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  contentPlatform: {
+    color: colors.textMuted,
     fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.5,
   },
-  sleepSection: {
+  contentStats: {
+    alignItems: 'flex-end',
+    gap: 2,
+  },
+  contentMentions: {
+    color: colors.textPrimary,
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  contentChange: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+
+  // Sentiment
+  sentimentCard: {
     backgroundColor: colors.cardBackground,
     borderRadius: 16,
-    padding: 20,
+    padding: 18,
     marginHorizontal: 20,
-    marginTop: 20,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  sleepTimes: {
+  sentimentRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
   },
-  sleepItem: {
+  sentimentItem: {
     alignItems: 'center',
     gap: 4,
   },
-  sleepEmoji: {
-    fontSize: 20,
-    marginBottom: 4,
+  sentimentEmoji: {
+    fontSize: 24,
   },
-  sleepTime: {
+  sentimentValue: {
     color: colors.textPrimary,
-    fontSize: 28,
+    fontSize: 18,
     fontWeight: '700',
   },
-  sleepLabel: {
+  sentimentLabel: {
     color: colors.textMuted,
     fontSize: 10,
     fontWeight: '600',
     letterSpacing: 0.5,
   },
-  sleepDivider: {
-    width: 1,
-    height: 50,
-    backgroundColor: colors.border,
-  },
-  alarmButton: {
+  sentimentBar: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: colors.surfaceHover,
-    borderRadius: 12,
-    paddingVertical: 12,
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginBottom: 12,
+    gap: 2,
   },
-  alarmIcon: {
-    fontSize: 14,
+  sentimentFill: {
+    height: '100%',
+    borderRadius: 3,
   },
-  alarmText: {
-    color: colors.textSecondary,
+  sentimentNote: {
+    color: colors.textMuted,
     fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  journalSection: {
-    backgroundColor: colors.cardBackground,
-    borderRadius: 16,
-    padding: 20,
-    marginHorizontal: 20,
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  journalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  journalDay: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  journalDayLabel: {
-    color: colors.textMuted,
-    fontSize: 10,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-  },
-  journalDot: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
+    fontStyle: 'italic',
+    lineHeight: 17,
   },
 });
