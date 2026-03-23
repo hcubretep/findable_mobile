@@ -7,6 +7,7 @@ import { MorningScoreScreen } from './src/screens/MorningScoreScreen';
 import { MyDayScreen } from './src/screens/MyDayScreen';
 import { KeywordDetailScreen } from './src/screens/KeywordDetailScreen';
 import { MyPlanScreen } from './src/screens/MyPlanScreen';
+import { OrcaAssistantScreen } from './src/screens/OrcaAssistantScreen';
 import { colors } from './src/theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -108,7 +109,7 @@ export default function App() {
         />
         <Tab.Screen
           name="Orca"
-          component={MorningScoreScreen}
+          component={OrcaAssistantScreen}
           options={{
             tabBarLabel: () => null,
             tabBarIcon: ({ focused }) => <OrcaTabIcon focused={focused} />,
