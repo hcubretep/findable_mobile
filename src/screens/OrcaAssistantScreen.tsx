@@ -753,6 +753,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 8,
     gap: 8,
+    width: '100%',
   },
   orcaSmallAvatar: {
     width: 28,
@@ -768,6 +769,7 @@ const styles = StyleSheet.create({
     maxWidth: SCREEN_WIDTH * 0.72,
     borderWidth: 1,
     borderColor: colors.border,
+    flexShrink: 1,
   },
   orcaBubbleText: {
     color: colors.textPrimary,
@@ -783,6 +785,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingHorizontal: 16,
     marginBottom: 8,
+    width: '100%',
   },
   userBubble: {
     backgroundColor: colors.primary,
@@ -791,6 +794,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     maxWidth: SCREEN_WIDTH * 0.72,
+    flexShrink: 1,
   },
   userBubbleText: {
     color: '#FFFFFF',
@@ -805,6 +809,7 @@ const styles = StyleSheet.create({
     padding: 14,
     maxWidth: SCREEN_WIDTH * 0.65,
     borderWidth: 1,
+    flexShrink: 1,
   },
   metricCardHeader: {
     flexDirection: 'row',
@@ -847,6 +852,7 @@ const styles = StyleSheet.create({
     maxWidth: SCREEN_WIDTH * 0.72,
     borderWidth: 1,
     borderColor: colors.border,
+    flexShrink: 1,
   },
   actionCardHeader: {
     flexDirection: 'row',
